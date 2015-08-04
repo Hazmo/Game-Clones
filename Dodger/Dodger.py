@@ -109,7 +109,6 @@ class Dodger(object):
                 self.all_sprites.draw(self.screen)
             if self.gameOver:
                 self.gameOverText = Text(50, "Game Over", white, 290, 289)
-                print self.gameOverText.rect.width, " ", self.gameOverText.rect.height
                 self.gameOverText.draw(self.screen)
             
             pygame.display.update()
