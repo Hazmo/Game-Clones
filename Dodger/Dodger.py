@@ -66,6 +66,7 @@ class Dodger(object):
         self.actualScoreText = Text(230, str(self.score), white, 50, 0)
         self.scoreText.draw(self.screen)
         self.actualScoreText.draw(self.screen)
+        self.gameOver = False
         
     def spawn_enemies(self):
         if (pygame.time.get_ticks() - self.enemySpawnTimer) >= 100:
@@ -86,9 +87,9 @@ class Dodger(object):
         self.actualScoreText.draw(self.screen)
         self.score += 1
         
-    def check_collisions:
-        if pygame.sprite.groupcollide(self.enemies, self.players):
-            self.gameOver = False
+    def check_collisions(self):
+        if pygame.sprite.groupcollide(self.enemies, self.players, False, False):
+            self.gameOver = True
         
 
     def main(self):
@@ -103,9 +104,13 @@ class Dodger(object):
                 self.all_sprites.update()
                 self.spawn_enemies()
                 
+                self.check_collisions()
+                
                 self.all_sprites.draw(self.screen)
             if self.gameOver:
-                continue
+                self.gameOverText = Text(50, "Game Over", white, 290, 289)
+                print self.gameOverText.rect.width, " ", self.gameOverText.rect.height
+                self.gameOverText.draw(self.screen)
             
             pygame.display.update()
             self.clock.tick(60)
