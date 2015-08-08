@@ -62,21 +62,22 @@ class Dodger(object):
     def __init__(self):
         pygame.init()
         self.screen = SCREEN
-        self.clock = pygame.time.Clock()
-        self.enemies = pygame.sprite.Group()
-        self.players = pygame.sprite.Group()
-        self.all_sprites = pygame.sprite.Group()
+        
         pygame.mouse.set_visible(False)
         self.reset()
         
     def reset(self):
+        self.clock = pygame.time.Clock()
+        self.enemies = pygame.sprite.Group()
+        self.players = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
         self.player = Player()
         self.players.add(self.player)
         self.all_sprites.add(self.player)
         self.enemySpawnTimer = pygame.time.get_ticks()
         self.score = 0
         self.scoreText = Text(30, "Score:", white, 0, 0)
-        self.actualScoreText = Text(230, str(self.score), white, 50, 0)
+        self.actualScoreText = Text(30, str(self.score), white, 50, 0)
         self.scoreText.draw(self.screen)
         self.actualScoreText.draw(self.screen)
         self.gameOver = False
@@ -118,13 +119,16 @@ class Dodger(object):
     def check_collisions(self):
         if pygame.sprite.groupcollide(self.enemies, self.players, False, False):
             self.gameOver = True
-        
-
+    def check_input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if self.gameOver == True:
+                if event.type == pygame.KEYUP:
+                    self.reset()
+                 
     def main(self):
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
             if not self.gameOver:
                 self.screen.fill(black)
                 
@@ -135,9 +139,11 @@ class Dodger(object):
                 self.check_collisions()
                 
                 self.all_sprites.draw(self.screen)
+                self.check_input()
             if self.gameOver:
                 self.gameOverText = Text(50, "Game Over", white, 290, 289)
                 self.gameOverText.draw(self.screen)
+                self.check_input()
             
             pygame.display.update()
             self.clock.tick(60)
