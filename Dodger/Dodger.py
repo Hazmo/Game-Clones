@@ -12,17 +12,30 @@ green = (0,   255,   0)
 SCREEN = pygame.display.set_mode([800, 600])
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, size, xPos, speed):
+    def __init__(self, size, xPos, yPos, speed, direction):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([size,size])
         self.image.fill(green)
-        self.rect = self.image.get_rect(topleft=(xPos, -size))
+        self.size = size
+        self.rect = self.image.get_rect(topleft=(xPos, yPos))
         self.speed = speed
+        self.direction = direction
                 
     def update(self):
-        self.rect.y += self.speed
-        if self.rect.y > 600:
-            self.kill()
+		if self.direction == 0:
+			self.rect.x += self.speed
+			if self.rect.x > 600:
+				self.kill()
+                
+		elif self.direction == 1:
+			self.rect.y += self.speed
+			if self.rect.y > 600:
+				self.kill()
+                
+		elif self.direction == 2:
+			self.rect.x -= self.speed
+			if self.rect.x < 0 + self.size:
+				self.kill()
         
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -70,13 +83,28 @@ class Dodger(object):
         
     def spawn_enemies(self):
         if (pygame.time.get_ticks() - self.enemySpawnTimer) >= 100:
-            enemySize = random.randint(10, 50)
-            xPos = random.randint(0,  800 - enemySize)
+            enemySize = random.randint(20, 70)
+            enemyDirection = random.randint(0, 2)
+
+            if enemyDirection == 0:
+                print 1
+                xPos = -enemySize
+                yPos = random.randint(0, 600 - enemySize)
+            elif enemyDirection == 1:
+                print 2
+                xPos = random.randint(0,  800 - enemySize)
+                yPos = 0
+            elif enemyDirection == 2:
+                print 3
+                xPos = 800
+                yPos = random.randint(0, 600 - enemySize)
+				
             enemySpeed = random.randint(5, 8)
+			
             
-            print enemySize, " ", xPos
+            #print enemySize, " ", xPos
             
-            newEnemy = Enemy(enemySize, xPos, enemySpeed)
+            newEnemy = Enemy(enemySize, xPos, yPos,enemySpeed, enemyDirection)
             self.enemies.add(newEnemy)
             self.all_sprites.add(newEnemy)
             
