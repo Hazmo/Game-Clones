@@ -24,7 +24,7 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
 		if self.direction == 0:
 			self.rect.x += self.speed
-			if self.rect.x > 600:
+			if self.rect.x > 800:
 				self.kill()
                 
 		elif self.direction == 1:
@@ -34,7 +34,7 @@ class Enemy(pygame.sprite.Sprite):
                 
 		elif self.direction == 2:
 			self.rect.x -= self.speed
-			if self.rect.x < 0 + self.size:
+			if self.rect.x < 0 - self.size:
 				self.kill()
         
 class Player(pygame.sprite.Sprite):
