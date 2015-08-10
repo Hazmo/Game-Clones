@@ -77,8 +77,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rotationAngleRadians = math.radians(rotationAngle)
         self.speed = 6
     def update(self, *args):
-        self.rect.x -= math.sin(self.rotationAngleRadians) * speed
-        self.rect.y -= math.coz(self.rotationAngleRadians) * speed
+        self.rect.x -= math.sin(self.rotationAngleRadians) * self.speed
+        self.rect.y -= math.cos(self.rotationAngleRadians) * self.speed
         
 
 class Asteroid:
@@ -107,7 +107,9 @@ class Asteroid:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    continue
+                    bullet = Bullet(self.player.x, self.player.y, self.player.rotationAngle)
+                    self.bullets.add(bullet)
+                    self.all_sprites.add(bullet)
         
         
     def main(self):
