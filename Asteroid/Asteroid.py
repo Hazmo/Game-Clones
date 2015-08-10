@@ -3,7 +3,7 @@ import sys
 import math
 SCREEN = pygame.display.set_mode([800, 600])
 
-IMG_NAMES = ["ship", "square"]
+IMG_NAMES = ["ship", "square", "bullet"]
 IMAGES 	= {name: pygame.image.load("images/{}.png".format(name)).convert_alpha()
 				for name in IMG_NAMES}
 
@@ -68,7 +68,17 @@ class Player(pygame.sprite.Sprite):
         self.rect.centery = self.y
         
         asteroid.screen.blit(self.image, self.rect)
-            
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, xPos, yPos, rotationAngle):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["bullet"]
+        self.image = pygame.transform.rotate(self.image, rotationAngle)
+        self.rect = self.image.get_rect(center=(xPos, yPos))
+        self.rotationAngleRadians = math.radians(rotationAngle)
+        self.speed = 6
+    def update(self, *args):
+        self.rect.x -= math.sin(self.rotationAngleRadians) * speed
+        self.rect.y -= math.coz(self.rotationAngleRadians) * speed
         
 
 class Asteroid:
@@ -95,6 +105,9 @@ class Asteroid:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    continue
         
         
     def main(self):
