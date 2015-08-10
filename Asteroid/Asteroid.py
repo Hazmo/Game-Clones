@@ -1,7 +1,11 @@
 import pygame
 import sys
-
+import math
 SCREEN = pygame.display.set_mode([800, 600])
+
+IMG_NAMES = ["ship", "square"]
+IMAGES 	= {name: pygame.image.load("images/{}.png".format(name)).convert_alpha()
+				for name in IMG_NAMES}
 
 black = (  0,   0,   0)
 white = (255, 255, 255)
@@ -11,21 +15,61 @@ green = (0,   255,   0)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([15, 10])
+        self.image = IMAGES["square"]
         self.original_image = self.image
-        self.image.fill(white)
-        self.rect = self.image.get_rect(topleft=(395, 295))
+        self.rect = self.image.get_rect(center=(400, 600))
         self.rotationAngle = 0
+        self.rotateSpeed = 3
+        self.speed = 0.1
+        
+        self.velX = 0
+        self.velY = 0
+        
+        self.x = 400
+        self.y = 600
         
     def update(self, keys):
         if keys[pygame.K_LEFT]:
-            print "yes"
-            self.rotationAngle += 1
+            self.rotationAngle += self.rotateSpeed
+            self.image = pygame.transform.rotate(self.original_image, self.rotationAngle)
+            self.rect = self.image.get_rect(center=(self.rect.center))
         if keys[pygame.K_RIGHT]:
-            self.rotationAngle -= 1
+            self.rotationAngle -= self.rotateSpeed
+            self.image = pygame.transform.rotate(self.original_image, self.rotationAngle)
+            self.rect = self.image.get_rect(center=(self.rect.center))
+        if keys[pygame.K_UP]:
+            self.rotationAngleRadians = math.radians(self.rotationAngle)
+            self.velX += math.sin(self.rotationAngleRadians) * self.speed
+            self.velY += math.cos(self.rotationAngleRadians) * self.speed
             
-        self.image = pygame.transform.rotate(self.original_image, self.rotationAngle)
-        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.velX *= 0.98
+        self.velY *= 0.98
+        
+        self.x -= self.velX
+        self.y -= self.velY
+        
+        if self.x > 800:
+            self.x = 0 - self.rect.width
+        elif self.x < 0 - self.rect.width:
+            self.x = 800
+              
+        if self.y > 600:
+            self.y = 0 - self.rect.height
+        elif self.y < 0 - self.rect.height:
+            self.y = 600
+        
+        if self.rotationAngle > 360:
+            self.rotationAngle = 0
+        elif self.rotationAngle < 0:
+            self.rotationAngle = 360
+            
+            
+        self.rect.centerx = self.x
+        self.rect.centery = self.y
+        
+        asteroid.screen.blit(self.image, self.rect)
+            
+        
 
 class Asteroid:
     def __init__(self):
@@ -56,12 +100,16 @@ class Asteroid:
     def main(self):
         while True:
             if not self.gameOver:
+            
+            
+                self.check_input()
                 self.screen.fill(black)
                 
                 self.all_sprites.update(self.keys)
+                
                 self.all_sprites.draw(self.screen)
                 
-                self.check_input()
+                
                 
             pygame.display.update()
             self.clock.tick(60)
