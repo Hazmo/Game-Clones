@@ -67,7 +67,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = self.x
         self.rect.centery = self.y
         
-        asteroid.screen.blit(self.image, self.rect)
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, xPos, yPos, rotationAngle):
         pygame.sprite.Sprite.__init__(self)
@@ -75,13 +74,27 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image, rotationAngle)
         self.rect = self.image.get_rect(center=(xPos, yPos))
         self.rotationAngleRadians = math.radians(rotationAngle)
-        self.speed = 6
+        self.speed = 9
+        self.aliveTimer = pygame.time.get_ticks()
+        
     def update(self, *args):
+        if (pygame.time.get_ticks() - self.aliveTimer) >= 1800:
+            self.kill()
         self.rect.x -= math.sin(self.rotationAngleRadians) * self.speed
         self.rect.y -= math.cos(self.rotationAngleRadians) * self.speed
         
+        if self.rect.x > 800:
+            self.rect.x = 0 - self.rect.width
+        elif self.rect.x < 0 - self.rect.width:
+            self.rect.x = 800
+              
+        if self.rect.y > 600:
+            self.rect.y = 0 - self.rect.height
+        elif self.rect.y < 0 - self.rect.height:
+            self.rect.y = 600
+        
 
-class Asteroid:
+class AsteroidGame:
     def __init__(self):
         self.screen = SCREEN
         
@@ -124,10 +137,9 @@ class Asteroid:
                 
                 self.all_sprites.draw(self.screen)
                 
-                
-                
+               
             pygame.display.update()
             self.clock.tick(60)
 if __name__ == "__main__":
-    asteroid = Asteroid()
+    asteroid = AsteroidGame()
     asteroid.main()
