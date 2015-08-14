@@ -94,6 +94,7 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.y = 0 - self.rect.height
         elif self.rect.y < 0 - self.rect.height:
             self.rect.y = 600
+            
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self, size, posX, posY, directionAngle, speed, rotationSpeed):
         pygame.sprite.Sprite.__init__(self)
@@ -116,6 +117,17 @@ class Asteroid(pygame.sprite.Sprite):
         self.rotation += self.rotationSpeed
         self.rect.x -= math.sin(self.directionAngleRadians) * self.speed
         self.rect.y -= math.cos(self.directionAngleRadians) * self.speed
+        
+        
+        if self.rect.x > 830 + self.rect.width:
+            self.rect.x = 0 - self.rect.width
+        elif self.rect.x < -30 - self.rect.width:
+            self.rect.x = 800 + self.rect.width
+              
+        if self.rect.y > 630 + self.rect.height:
+            self.rect.y = 0 - self.rect.height
+        elif self.rect.y < -30 - self.rect.height:
+            self.rect.y = 600 + self.rect.height
         
         
 
@@ -152,15 +164,12 @@ class AsteroidGame:
                     self.all_sprites.add(bullet)
     
     def spawn_asteroids(self):
-        if(pygame.time.get_ticks() - self.asteroidSpawnTimer) >= 1000:
+        if(pygame.time.get_ticks() - self.asteroidSpawnTimer) >= 1000 and len(self.asteroids) < 5:
             size = random.randint(10, 40)
+            
             randomAngles = [random.randint(51, 140), random.randint(141, 230), random.randint(231, 320), random.choice([random.randint(321, 360), random.randint(0, 50)])]
             directionAngle = random.choice(randomAngles)
             
-            #excludedAngles = [0, 90, 180, 270]
-            
-            #if directionAngle in excludedAngles:
-                #directionAngle += random.randint(20, 70)
                 
             #right    
             if directionAngle >= 231 and directionAngle <= 320:
@@ -179,41 +188,6 @@ class AsteroidGame:
                 xPos = random.randint(200, 500)
                 yPos = 600 + size
             
-            """
-            #moving up-right
-            if directionAngle >= 0 and directionAngle < 90:
-                print "upright"
-                xPos = random.choice([800 + size, random.randint(150 + size, 700)])
-                if xPos < 800:
-                    yPos = 0 - size
-                else:
-                    yPos = random.randint(150 + size, 500)
-            #down-right       
-            elif directionAngle >= 90 and directionAngle < 180:
-                print "downright"
-                xPos = random.choice([800 + size, random.randint(150 + size, 700)])
-                if xPos < 800:
-                    yPos = 600 + size
-                else:
-                    yPos = random.randint(150 + size, 500)
-                    
-            #down-left
-            elif directionAngle >= 180 and directionAngle < 270:
-                print "downleft"
-                xPos = random.choice([0 - size, random.randint(150 + size, 700)])
-                if xPos > 0:
-                    yPos = 600 + size
-                else:
-                    yPos = random.randint(150 + size, 500)
-            #up-left
-            elif directionAngle >= 270 and directionAngle < 360:
-                print "upleft"
-                xPos = random.choice([0 - size, random.randint(150 + size, 700)])
-                if xPos > 0:
-                    yPos = 0 - size
-                else:
-                    yPos = random.randint(150 + size, 500)
-                   """
                     
             speed = random.randint(2, 6)
             rotationSpeed = random.randint(1, 4)
@@ -228,10 +202,7 @@ class AsteroidGame:
             
             self.asteroidSpawnTimer = pygame.time.get_ticks()
             
-                
-                
-                
-        
+            
     def main(self):
         while True:
             if not self.gameOver:
