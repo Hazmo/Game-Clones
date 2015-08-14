@@ -165,7 +165,7 @@ class AsteroidGame:
     
     def spawn_asteroids(self):
         if(pygame.time.get_ticks() - self.asteroidSpawnTimer) >= 1000 and len(self.asteroids) < 5:
-            size = random.randint(10, 40)
+            size = random.randint(20, 50)
             
             randomAngles = [random.randint(51, 140), random.randint(141, 230), random.randint(231, 320), random.choice([random.randint(321, 360), random.randint(0, 50)])]
             directionAngle = random.choice(randomAngles)
@@ -189,7 +189,7 @@ class AsteroidGame:
                 yPos = 600 + size
             
                     
-            speed = random.randint(2, 6)
+            speed = random.randint(2, 4)
             rotationSpeed = random.randint(1, 4)
             
             
