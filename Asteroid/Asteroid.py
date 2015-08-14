@@ -4,8 +4,6 @@ import math
 import random
 SCREEN = pygame.display.set_mode([800, 600])
 
-hit_counter = 0
-
 IMG_NAMES = ["ship", "square", "bullet", "asteroid"]
 IMAGES 	= {name: pygame.image.load("images/{}.png".format(name)).convert_alpha()
 				for name in IMG_NAMES}
@@ -81,6 +79,7 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["bullet"]
         self.image = pygame.transform.rotate(self.image, rotationAngle)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center=(xPos, yPos))
         self.rotationAngleRadians = math.radians(rotationAngle)
         self.speed = 9
@@ -123,19 +122,22 @@ class Asteroid(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, self.rotation)
         self.rect = self.image.get_rect(center=(self.rect.center))
         self.rotation += self.rotationSpeed
-        self.rect.x -= math.sin(self.directionAngleRadians) * self.speed
-        self.rect.y -= math.cos(self.directionAngleRadians) * self.speed
+        self.x -= math.sin(self.directionAngleRadians) * self.speed
+        self.y -= math.cos(self.directionAngleRadians) * self.speed
         
         
-        if self.rect.x > 830 + self.rect.width:
-            self.rect.x = 0 - self.rect.width
-        elif self.rect.x < -30 - self.rect.width:
-            self.rect.x = 800 + self.rect.width
+        if self.x > 830 + self.rect.width:
+            self.x = 0 - self.rect.width
+        elif self.x < -30 - self.rect.width:
+            self.x = 800 + self.rect.width
               
-        if self.rect.y > 630 + self.rect.height:
-            self.rect.y = 0 - self.rect.height
-        elif self.rect.y < -30 - self.rect.height:
-            self.rect.y = 600 + self.rect.height
+        if self.y > 630 + self.rect.height:
+            self.y = 0 - self.rect.height
+        elif self.y < -30 - self.rect.height:
+            self.y = 600 + self.rect.height
+            
+        self.rect.centerx = self.x
+        self.rect.centery = self.y
             
         self.mask = pygame.mask.from_surface(self.image)
         
@@ -159,7 +161,6 @@ class AsteroidGame:
         self.player = Player()
         self.players.add(self.player)
         self.all_sprites.add(self.player)
-        self.hit_counter = 0
         
         self.asteroidSpawnTimer = pygame.time.get_ticks()
         
@@ -176,12 +177,18 @@ class AsteroidGame:
                     
                     
     def check_collisions(self):
+    
+        bullet_asteroid_collision = pygame.sprite.groupcollide(self.bullets, self.asteroids, True, False, pygame.sprite.collide_mask)
+        
+        if bullet_asteroid_collision:
+            shot_asteroid = bullet_asteroid_collision.itervalues().next()[0]
+            shot_asteroid.kill()
+            
         #player_asteroid_collisions = pygame.sprite.groupcollide(self.asteroids, self.play)
         player_asteroid_collision = pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)
         if player_asteroid_collision is not None:
-            self.hit_counter += 1
             player_asteroid_collision.kill()
-            print "hit ", self.hit_counter
+        
     
     def spawn_asteroids(self):
         if(pygame.time.get_ticks() - self.asteroidSpawnTimer) >= 1000 and len(self.asteroids) < 5:
@@ -209,19 +216,14 @@ class AsteroidGame:
                 yPos = 600 + size
             
                     
-            #speed = random.randint(2, 4)
-            speed = 1
-            #rotationSpeed = random.randint(1, 4)
-            rotationSpeed = 1
-            
+            speed = random.randint(2, 4)
+            rotationSpeed = random.randint(1, 4)
             
             
             asteroid = Asteroid(size, xPos, yPos, directionAngle, speed, rotationSpeed)
             self.asteroids.add(asteroid)
             self.all_sprites.add(asteroid)
-            
-            print directionAngle
-            
+               
             self.asteroidSpawnTimer = pygame.time.get_ticks()
             
             
