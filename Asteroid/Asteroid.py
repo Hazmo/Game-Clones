@@ -102,9 +102,10 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.y = 600
             
 class Asteroid(pygame.sprite.Sprite):
-    def __init__(self, size, posX, posY, directionAngle, speed, rotationSpeed):
+    def __init__(self, size, posX, posY, directionAngle, speed, rotationSpeed, generation):
         pygame.sprite.Sprite.__init__(self)
         self.original_image = IMAGES["asteroid"]
+        self.size = size
         self.original_image = pygame.transform.scale(self.original_image, (size, size))
         self.image = self.original_image
         self.mask = pygame.mask.from_surface(self.image)
@@ -112,6 +113,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.speed = speed
         self.rotationSpeed = rotationSpeed
         self.directionAngleRadians = math.radians(directionAngle)
+        self.generation = generation
         self.rotation = 0
         #represents the middle of the gr
         self.x = posX + size
@@ -183,6 +185,24 @@ class AsteroidGame:
         if bullet_asteroid_collision:
             shot_asteroid = bullet_asteroid_collision.itervalues().next()[0]
             shot_asteroid.kill()
+            if shot_asteroid.generation < 2:
+            
+                
+                newSize = int(shot_asteroid.size * (0.7 ** shot_asteroid.generation))
+                newDirectionAngle1 = random.randint(0, 360)
+                newDirectionAngle2 = (newDirectionAngle1 + 180) % 360
+                newSpeed = shot_asteroid.speed
+                newGeneration = shot_asteroid.generation + 1
+                
+                
+                newAsteroid1 = Asteroid(newSize,shot_asteroid.x, shot_asteroid.y, newDirectionAngle1, newSpeed, shot_asteroid.rotationSpeed, newGeneration)
+                newAsteroid2 = Asteroid(newSize, shot_asteroid.x, shot_asteroid.y, newDirectionAngle2, newSpeed, shot_asteroid.rotationSpeed, newGeneration)
+            
+                
+                
+                newAsteroid1.add(self.asteroids, self.all_sprites)
+                newAsteroid2.add(self.asteroids, self.all_sprites)
+            
             
         #player_asteroid_collisions = pygame.sprite.groupcollide(self.asteroids, self.play)
         player_asteroid_collision = pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)
@@ -220,7 +240,7 @@ class AsteroidGame:
             rotationSpeed = random.randint(1, 4)
             
             
-            asteroid = Asteroid(size, xPos, yPos, directionAngle, speed, rotationSpeed)
+            asteroid = Asteroid(size, xPos, yPos, directionAngle, speed, rotationSpeed, 1)
             self.asteroids.add(asteroid)
             self.all_sprites.add(asteroid)
                
