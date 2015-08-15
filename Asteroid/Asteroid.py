@@ -144,9 +144,20 @@ class Asteroid(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         
         
+class Text(object):
+	def __init__(self, size, message, color, xpos, ypos, textFont=None):
+		self.font = pygame.font.Font(textFont, size)
+		self.surface = self.font.render(message, True, color)
+		self.rect = self.surface.get_rect(topleft=(xpos, ypos))
+
+	def draw(self, surface):
+		surface.blit(self.surface, self.rect)
+        
+        
 
 class AsteroidGame:
     def __init__(self):
+        pygame.init()
         self.screen = SCREEN
         
         self.reset()
@@ -159,11 +170,14 @@ class AsteroidGame:
         self.bullets = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
         self.keys = pygame.key.get_pressed()
-        
         self.player = Player()
         self.players.add(self.player)
         self.all_sprites.add(self.player)
-        
+        self.score = 0
+        self.scoreText = Text(30, "Score:", white, 0, 0)
+        self.actualScoreText = Text(30, str(self.score), white, 50, 0)
+        self.scoreText.draw(self.screen)
+        self.actualScoreText.draw(self.screen)
         self.asteroidSpawnTimer = pygame.time.get_ticks()
         
     def check_input(self):
@@ -177,7 +191,6 @@ class AsteroidGame:
                     self.bullets.add(bullet)
                     self.all_sprites.add(bullet)
                     
-                    
     def check_collisions(self):
     
         bullet_asteroid_collision = pygame.sprite.groupcollide(self.bullets, self.asteroids, True, False, pygame.sprite.collide_mask)
@@ -185,31 +198,37 @@ class AsteroidGame:
         if bullet_asteroid_collision:
             shot_asteroid = bullet_asteroid_collision.itervalues().next()[0]
             shot_asteroid.kill()
+            self.update_score(shot_asteroid)
             if shot_asteroid.generation < 2:
             
-                
                 newSize = int(shot_asteroid.size * (0.7 ** shot_asteroid.generation))
                 newDirectionAngle1 = random.randint(0, 360)
                 newDirectionAngle2 = (newDirectionAngle1 + 180) % 360
                 newSpeed = shot_asteroid.speed
                 newGeneration = shot_asteroid.generation + 1
                 
-                
                 newAsteroid1 = Asteroid(newSize,shot_asteroid.x, shot_asteroid.y, newDirectionAngle1, newSpeed, shot_asteroid.rotationSpeed, newGeneration)
                 newAsteroid2 = Asteroid(newSize, shot_asteroid.x, shot_asteroid.y, newDirectionAngle2, newSpeed, shot_asteroid.rotationSpeed, newGeneration)
             
-                
-                
                 newAsteroid1.add(self.asteroids, self.all_sprites)
                 newAsteroid2.add(self.asteroids, self.all_sprites)
+                
+                
             
             
         #player_asteroid_collisions = pygame.sprite.groupcollide(self.asteroids, self.play)
         player_asteroid_collision = pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)
         if player_asteroid_collision is not None:
             player_asteroid_collision.kill()
+    def draw_score(self):
+        self.scoreText.draw(self.screen)
+        self.actualScoreText = Text(30, str(self.score), white, 70, 0)
+        self.actualScoreText.draw(self.screen)
         
-    
+    def update_score(self, asteroid):
+        generation = asteroid.generation
+        self.score += 10 * generation
+        
     def spawn_asteroids(self):
         if(pygame.time.get_ticks() - self.asteroidSpawnTimer) >= 1000 and len(self.asteroids) < 5:
             size = random.randint(35, 60)
@@ -260,6 +279,7 @@ class AsteroidGame:
                 self.all_sprites.update(self.keys)
                 
                 self.all_sprites.draw(self.screen)
+                self.draw_score()
                 
                
             pygame.display.update()
