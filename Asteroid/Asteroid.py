@@ -4,7 +4,7 @@ import math
 import random
 SCREEN = pygame.display.set_mode([800, 600])
 
-IMG_NAMES = ["ship", "square", "bullet", "asteroid"]
+IMG_NAMES = ["ship", "bullet", "asteroid"]
 IMAGES 	= {name: pygame.image.load("images/{}.png".format(name)).convert_alpha()
 				for name in IMG_NAMES}
 
@@ -19,9 +19,9 @@ grey  = (128, 128, 128)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["square"]
+        self.image = IMAGES["ship"]
         self.original_image = self.image
-        self.rect = self.image.get_rect(center=(400, 600))
+        self.rect = self.image.get_rect(center=(400, 300))
         self.mask = pygame.mask.from_surface(self.image)
         self.rotationAngle = 0
         self.rotateSpeed = 3
@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.velY = 0
         
         self.x = 400
-        self.y = 600
+        self.y = 300
         
     def update(self, keys):
         if keys[pygame.K_LEFT]:
@@ -115,11 +115,9 @@ class Asteroid(pygame.sprite.Sprite):
         self.directionAngleRadians = math.radians(directionAngle)
         self.generation = generation
         self.rotation = 0
-        #represents the middle of the gr
+        #represents the middle of the asteroid
         self.x = posX + size
         self.y = posY + size
-        #TODO
-        #set random rotation, set random speed and direction, make update keep it spinning.
     def update(self, *args):
         self.image = pygame.transform.rotate(self.original_image, self.rotation)
         self.rect = self.image.get_rect(center=(self.rect.center))
@@ -182,6 +180,7 @@ class AsteroidGame:
         self.actualHighScoreText = Text(23, str(self.highScore), white, 740, 1)
         
         self.asteroidSpawnTimer = pygame.time.get_ticks()
+        self.bulletTime = pygame.time.get_ticks()
         
         
         
@@ -195,9 +194,11 @@ class AsteroidGame:
                     self.reset()
                 else:
                     if event.key == pygame.K_SPACE:
-                        bullet = Bullet(self.player.x, self.player.y, self.player.rotationAngle)
-                        self.bullets.add(bullet)
-                        self.all_sprites.add(bullet)
+                        if (pygame.time.get_ticks() - self.bulletTime) >= 300:
+                            bullet = Bullet(self.player.x, self.player.y, self.player.rotationAngle)
+                            self.bullets.add(bullet)
+                            self.all_sprites.add(bullet)
+                            self.bulletTime = pygame.time.get_ticks()
                     
     def check_collisions(self):
     
