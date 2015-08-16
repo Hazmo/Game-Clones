@@ -160,6 +160,8 @@ class AsteroidGame:
         pygame.init()
         self.screen = SCREEN
         
+        self.highScore = 0
+        
         self.reset()
         
     def reset(self):
@@ -174,11 +176,14 @@ class AsteroidGame:
         self.players.add(self.player)
         self.all_sprites.add(self.player)
         self.score = 0
-        self.scoreText = Text(30, "Score:", white, 0, 0)
-        self.actualScoreText = Text(30, str(self.score), white, 50, 0)
+        self.scoreText = Text(23, "Score:", white, 0, 0)
         self.scoreText.draw(self.screen)
-        self.actualScoreText.draw(self.screen)
+        self.highScoreText = Text(23, "High Score:", white, 650, 0)  
+        self.actualHighScoreText = Text(23, str(self.highScore), white, 740, 1)
+        
         self.asteroidSpawnTimer = pygame.time.get_ticks()
+        
+        
         
     def check_input(self):
         self.keys = pygame.key.get_pressed()
@@ -186,15 +191,18 @@ class AsteroidGame:
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    bullet = Bullet(self.player.x, self.player.y, self.player.rotationAngle)
-                    self.bullets.add(bullet)
-                    self.all_sprites.add(bullet)
+                if self.gameOver:
+                    self.reset()
+                else:
+                    if event.key == pygame.K_SPACE:
+                        bullet = Bullet(self.player.x, self.player.y, self.player.rotationAngle)
+                        self.bullets.add(bullet)
+                        self.all_sprites.add(bullet)
                     
     def check_collisions(self):
     
         bullet_asteroid_collision = pygame.sprite.groupcollide(self.bullets, self.asteroids, True, False, pygame.sprite.collide_mask)
-        
+        #bullet hitting asteroid
         if bullet_asteroid_collision:
             shot_asteroid = bullet_asteroid_collision.itervalues().next()[0]
             shot_asteroid.kill()
@@ -212,18 +220,18 @@ class AsteroidGame:
             
                 newAsteroid1.add(self.asteroids, self.all_sprites)
                 newAsteroid2.add(self.asteroids, self.all_sprites)
-                
-                
-            
-            
-        #player_asteroid_collisions = pygame.sprite.groupcollide(self.asteroids, self.play)
+                   
+        #player hitting asteroid
         player_asteroid_collision = pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)
         if player_asteroid_collision is not None:
-            player_asteroid_collision.kill()
-    def draw_score(self):
+            self.gameOver = True
+    def draw_text(self):
         self.scoreText.draw(self.screen)
-        self.actualScoreText = Text(30, str(self.score), white, 70, 0)
+        self.highScoreText.draw(self.screen)
+        self.actualHighScoreText.draw(self.screen)
+        self.actualScoreText = Text(23, str(self.score), white, 52, 1)
         self.actualScoreText.draw(self.screen)
+        
         
     def update_score(self, asteroid):
         generation = asteroid.generation
@@ -279,7 +287,13 @@ class AsteroidGame:
                 self.all_sprites.update(self.keys)
                 
                 self.all_sprites.draw(self.screen)
-                self.draw_score()
+                self.draw_text()
+            if self.gameOver:
+                if self.score > self.highScore:
+                    self.highScore = self.score
+                self.gameOverText = Text(50, "Game Over", white, 290, 289)
+                self.gameOverText.draw(self.screen)
+                self.check_input()
                 
                
             pygame.display.update()
